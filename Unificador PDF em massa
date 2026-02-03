@@ -175,35 +175,67 @@ class PDFToolApp(ctk.CTkFrame):
     def unificar_thread(self):
         threading.Thread(target=self.unificar, daemon=True).start()
 
+    # FUNÇÃO UNIFICAR COM RELATÓRIO EM MESSAGEBOX
     def unificar(self):
         pasta = self.entry_pasta.get()
         total = len(self.linhas)
+
+        relatorio_msg = []
 
         for i, (_, mat, out, status) in enumerate(self.linhas, start=1):
             matricula = mat.get()
             nome = out.get()
 
             pdfs = []
+            detalhes_paginas = []
+            total_paginas_final = 0
+
             for r, _, files in os.walk(pasta):
                 for f in files:
                     if matricula in f and f.lower().endswith(".pdf"):
-                        pdfs.append(os.path.join(r, f))
+                        caminho = os.path.join(r, f)
+                        try:
+                            reader = PdfReader(caminho)
+                            qtd_paginas = len(reader.pages)
+                            pdfs.append(caminho)
+                            detalhes_paginas.append(f"{f}: {qtd_paginas} páginas")
+                            total_paginas_final += qtd_paginas
+                        except:
+                            detalhes_paginas.append(f"{f}: erro ao ler")
 
             if not pdfs:
                 status.configure(text="🔴")
+                relatorio_msg.append(
+                    f"{nome}.pdf\n  PDFs encontrados: 0\n  Páginas em cada PDF: Nenhum PDF encontrado\n  Total páginas final: 0\n  Status: Erro\n"
+                )
                 continue
 
-            writer = PdfWriter()
-            for pdf in pdfs:
-                reader = PdfReader(pdf)
-                for page in reader.pages:
-                    writer.add_page(page)
+            try:
+                writer = PdfWriter()
+                for pdf in pdfs:
+                    reader = PdfReader(pdf)
+                    for page in reader.pages:
+                        writer.add_page(page)
 
-            with open(os.path.join(pasta, f"{nome}.pdf"), "wb") as f:
-                writer.write(f)
+                caminho_final = os.path.join(pasta, f"{nome}.pdf")
+                with open(caminho_final, "wb") as f:
+                    writer.write(f)
 
-            status.configure(text="🟢")
+                status.configure(text="🟢")
+                relatorio_msg.append(
+                    f"{nome}.pdf\n  PDFs encontrados: {len(pdfs)}\n  Páginas em cada PDF: {' | '.join(detalhes_paginas)}\n  Total páginas final: {total_paginas_final}\n  Status: Sucesso\n"
+                )
+
+            except Exception as e:
+                status.configure(text="🔴")
+                relatorio_msg.append(
+                    f"{nome}.pdf\n  PDFs encontrados: {len(pdfs)}\n  Páginas em cada PDF: {' | '.join(detalhes_paginas)}\n  Total páginas final: {total_paginas_final}\n  Status: Erro\n"
+                )
+
             self.progress.set(i / total)
+
+        # Mostrar relatório no messagebox
+        messagebox.showinfo("Relatório de Unificação", "\n\n".join(relatorio_msg))
 
 
 # EXECUÇÃO
@@ -211,6 +243,12 @@ class PDFToolApp(ctk.CTkFrame):
 class App(TkinterDnD.Tk):
     def __init__(self):
         super().__init__()
+        # ⚡ Adicionado ícone da janela
+        try:
+            self.iconbitmap("icone.ico")
+        except Exception as e:
+            print("Não foi possível carregar o ícone:", e)
+
         self.withdraw()
         SplashScreen(self, self.load_app)
         self.update()
