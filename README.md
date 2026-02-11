@@ -109,18 +109,8 @@ dist/
 
 📄 Licença
 
-Este projeto é de uso interno do GEABE.
+MIT LICENSE
 
-Se quiser, posso também gerar:
+Este projeto é de uso interno da GEABE.
 
-✅ requirements.txt
 
-✅ Versão mais corporativa do README
-
-✅ Versão pública/open-source
-
-✅ Badges para GitHub
-
-✅ Estrutura ideal de pastas
-
-✅ Modelo de licença
