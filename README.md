@@ -107,18 +107,6 @@ O executável ficará na pasta:
 
 dist/
 
-🛠️ Melhorias Futuras
-
-Exportação do relatório em arquivo .txt
-
-Log detalhado de erros
-
-Ordenação automática de PDFs antes da unificação
-
-Drag and Drop de arquivos
-
-Modo claro/escuro alternável
-
 📄 Licença
 
 Este projeto é de uso interno do GEABE.
